@@ -30,8 +30,8 @@ This will run a development server on port 9999.
 
 ## Team
 
-* Derek Eder - developer, content
-* Eric van Zanten - developer, GIS data merging
+* [Derek Eder](http://github.com/derekeder)
+* [Eric van Zanten](http://github.com/evz)
 
 ## Errors / Bugs
 
