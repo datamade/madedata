@@ -49,7 +49,8 @@ def list_bucket(bucket_name):
     resp = {
         'status': 'OK',
         'message': 'Listing of keys within %s' % bucket_name,
-        'objects': []
+        'objects': [],
+        'meta': "Add a 'meta.json' file to the bucket to populate this key",
     }
     status_code = 200
     conn = boto.connect_s3(aws_access_key_id=AWS_KEY, aws_secret_access_key=AWS_SECRET)
@@ -63,7 +64,16 @@ def list_bucket(bucket_name):
     if bucket is not None:
         grants = [g.permission for g in bucket.list_grants()]
         if 'READ' in grants:
-            paths = [{'dir': os.path.split(k.key)[0], 'body': k} for k in bucket.list()]
+            prefix = request.args.get('prefix')
+            if prefix:
+                bucket_list = bucket.list(prefix)
+                resp['message'] = "%s with prefix '%s'" % (resp['message'], prefix)
+            else:
+                bucket_list = bucket.list()
+            if bucket.get_key('meta.json'):
+                meta = bucket.get_key('meta.json').get_contents_as_string()
+                resp['meta'] = json.loads(meta)
+            paths = [{'dir': os.path.split(k.key)[0], 'body': k} for k in bucket_list]
             paths = sorted(paths, key=itemgetter('dir'))
             structure = {'root': []}
             for k,g in groupby(paths, key=itemgetter('dir')):
